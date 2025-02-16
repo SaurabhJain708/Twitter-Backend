@@ -39,6 +39,7 @@ const videoSchema = new mongoose.Schema({
         type:Number,
         required:true
     },
+    tags:[String], 
 
 
     // TODO

@@ -39,17 +39,7 @@ const videoSchema = new mongoose.Schema({
         type:Number,
         required:true
     },
-    tags:[String], 
-
-
-    // TODO
-    // comments:{
-
-    // }
-
-
-
-
+    tags:[String],
 },{timestamps:true})
 
 const Video = mongoose.model("Video",videoSchema)

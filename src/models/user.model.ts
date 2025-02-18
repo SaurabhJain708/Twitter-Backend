@@ -27,10 +27,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    gender:{
-       type: String, 
-       required: true, 
-       enum: ["MALE","FEMALE","OTHER"]
+    gender: {
+      type: String,
+      required: true,
+      enum: ["MALE", "FEMALE", "OTHER"],
     },
     avatar: {
       type: String,
@@ -59,6 +59,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
+    subscribers:{
+      type:Number,
+      required:true,
+      default:0
+    }
   },
   { timestamps: true }
 );
@@ -75,20 +80,20 @@ userSchema.methods.isPasswordCorrect = async function (password: string) {
 };
 
 userSchema.methods.generateAccessToken = function () {
-  const secretKey:string = process.env.ACCESS_TOKEN_SECRET!
+  const secretKey: string = process.env.ACCESS_TOKEN_SECRET!;
   return jwt.sign(
     {
       id: this._id,
     },
     secretKey,
     {
-      expiresIn:"1d",
+      expiresIn: "1d",
     }
   );
 };
 
 userSchema.methods.generateRefreshToken = function () {
-  const secretKey:string = process.env.REFRESH_TOKEN_SECRET!
+  const secretKey: string = process.env.REFRESH_TOKEN_SECRET!;
   return jwt.sign(
     {
       id: this._id,

@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
-
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 //  TODO CHANGE ENV SETTINGS
 
@@ -42,10 +41,10 @@ const userSchema = new mongoose.Schema(
         ref: "Video",
       },
     ],
-    bio:{
-        type:String,
-        required:false,
-        trim:true
+    bio: {
+      type: String,
+      required: false,
+      trim: true,
     },
     password: {
       type: String,
@@ -59,42 +58,41 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save",async function(next){
-    if(!this.isModified("password")) return next();
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
 
-    this.password = await bcrypt.hash(this.password,10)
-    next()
-})
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
+});
 
-userSchema.methods.isPasswordCorrect = async function(password:string){
-    return await bcrypt.compare(password,this.password)
-}
+userSchema.methods.isPasswordCorrect = async function (password: string) {
+  return await bcrypt.compare(password, this.password);
+};
 
-userSchema.methods.generateAccessToken = function(){
-    return jwt.sign(
-        {
-            id: this._id
-        },
-        "hfyuffvfu",
-        {
-            expiresIn: "1d",
-        }
-    )
-} 
-
-userSchema.methods.generateRefreshToken = function(){
+userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
-      {
-          id: this._id
-      },
-      "hfyuffvfu",
-      {
-          expiresIn: "10d",
-      }
-  )
-}
+    {
+      id: this._id,
+    },
+    "hfyuffvfu",
+    {
+      expiresIn: "1d",
+    }
+  );
+};
+
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      id: this._id,
+    },
+    "hfyuffvfu",
+    {
+      expiresIn: "10d",
+    }
+  );
+};
 
 const User = mongoose.model("User", userSchema);
 
 export default User;
- 

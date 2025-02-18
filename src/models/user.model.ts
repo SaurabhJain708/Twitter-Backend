@@ -75,23 +75,25 @@ userSchema.methods.isPasswordCorrect = async function (password: string) {
 };
 
 userSchema.methods.generateAccessToken = function () {
+  const secretKey:string = process.env.ACCESS_TOKEN_SECRET!
   return jwt.sign(
     {
       id: this._id,
     },
-    "hfyuffvfu",
+    secretKey,
     {
-      expiresIn: "1d",
+      expiresIn:"1d",
     }
   );
 };
 
 userSchema.methods.generateRefreshToken = function () {
+  const secretKey:string = process.env.REFRESH_TOKEN_SECRET!
   return jwt.sign(
     {
       id: this._id,
     },
-    "hfyuffvfu",
+    secretKey,
     {
       expiresIn: "10d",
     }

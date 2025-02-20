@@ -2,6 +2,7 @@ import User from "../models/user.model";
 import { ApiError } from "../utils/ApiError";
 import { AsyncHandler } from "../utils/AsyncHandler";
 import { ApiResponse } from "../utils/ApiResponse";
+import {Express, Request, Response} from " express"
 
 export const generateRefreshToken = async (userId:any) => {
   try {
@@ -21,7 +22,7 @@ export const generateRefreshToken = async (userId:any) => {
   }
 };
 
-export const handleuserregister = AsyncHandler(async (req: Request, res: Response) => {
+export const handleuserregister = AsyncHandler(async (req, res) => {
   const { username, email, fullName, gender, password } = req?.body;
   if (
     !(
@@ -61,7 +62,7 @@ export const handleuserregister = AsyncHandler(async (req: Request, res: Respons
     .json(new ApiResponse(200, checknewUser._id, "User created successfully"));
 });
 
-export const handleuserlogin = AsyncHandler(async (req: Request, res: Response) => {
+export const handleuserlogin = AsyncHandler(async (req, res) => {
   const { username, email, password } = req?.body;
   if ((!username && !email) || !password) {
     throw new ApiError(400, "All fields are required");

@@ -69,6 +69,7 @@ const userSchema = new mongoose.Schema<Iuser>(
     password: {
       type: String,
       required: true,
+      select: false
     },
     refreshtoken: {
       type: String,

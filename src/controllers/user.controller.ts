@@ -82,4 +82,12 @@ export const handleuserlogin = AsyncHandler(async (req, res) => {
     throw new ApiError(401, "Invalid user credentials");
   }
   const {accesstoken, refreshtoken} = await generateRefreshToken(user?._id)
+
+if (!accesstoken || !refreshtoken) {
+throw new ApiError(500," Something went wrong while generating access or refresh token") 
+}
+
+return res.status(200).cookie("accessToken",accesstoken).cookie("refreshToken",refreshtoken).json(
+new ApiResponse(200,{user,refreshtoken,accesstoken}, "User logged in successfully"
+) 
 });

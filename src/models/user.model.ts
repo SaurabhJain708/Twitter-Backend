@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose,{Document,Model} from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -90,7 +90,7 @@ userSchema.pre<Iuser>("save", async function (next) {
   next();
 });
 
-userSchema.methods.isPasswordCorrect = async function (password: string) {
+userSchema.methods.isPasswordCorrect = async function (password: string):Promise<boolean>{
   return await bcrypt.compare(password, this.password);
 };
 

@@ -1,0 +1,18 @@
+import mongoose from "mongoose"
+
+
+const connectdb = async ()=>{
+    try {
+        const mongoconnectioninstance = await mongoose.connect("")
+        console.log(`\n MongoDB connected !! DB HOST: ${mongoconnectioninstance.connection.host}`)
+    } catch (error) {
+        console.log("Mongoose connection terminated", error);
+
+        mongoose.connection.close(()=>{
+            console.log("MongoDB connection closed. Exiting process...")
+            process.exit(1)
+        })
+    }
+}
+
+export default connectdb

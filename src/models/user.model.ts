@@ -2,9 +2,24 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-//  TODO CHANGE ENV SETTINGS
+interface Iuser extends Document{
+username:string;
+email:string;
+fullName:string;
+gender:"MALE" | "FEMALE" | "OTHER";
+avatar? :string;
+coverImage? :string;
+videos:mongoose.Schema.Types.ObjectId[];
+bio? :string;
+password:string;
+refreshToken:string;
+subscribers:number;
+isPasswordCorrect(password:string) :Promise<boolean>;
+generateAccessToken() :string;
+generateRefreshToken() :string;
+}
 
-const userSchema = new mongoose.Schema(
+const userSchema = new mongoose.Schema<Iuser>(
   {
     username: {
       type: String,
@@ -68,7 +83,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre<Iuser>("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 10);
@@ -79,7 +94,7 @@ userSchema.methods.isPasswordCorrect = async function (password: string) {
   return await bcrypt.compare(password, this.password);
 };
 
-userSchema.methods.generateAccessToken = function () {
+userSchema.methods.generateAccessToken = function ():string {
   const secretKey: string = process.env.ACCESS_TOKEN_SECRET!;
   return jwt.sign(
     {
@@ -92,7 +107,7 @@ userSchema.methods.generateAccessToken = function () {
   );
 };
 
-userSchema.methods.generateRefreshToken = function () {
+userSchema.methods.generateRefreshToken = function ():string {
   const secretKey: string = process.env.REFRESH_TOKEN_SECRET!;
   return jwt.sign(
     {
@@ -105,6 +120,6 @@ userSchema.methods.generateRefreshToken = function () {
   );
 };
 
-const User = mongoose.model("User", userSchema);
+const User:Model<Iuser> = mongoose.model<Iuser>("User", userSchema);
 
 export default User;

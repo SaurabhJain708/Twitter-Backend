@@ -63,7 +63,7 @@ const userSchema = new mongoose.Schema<Iuser>(
     ],
     bio: {
       type: String,
-      required: false,
+      required: false, 
       trim: true,
     },
     password: {
@@ -71,7 +71,7 @@ const userSchema = new mongoose.Schema<Iuser>(
       required: true,
       select: false
     },
-    refreshtoken: {
+    refreshToken: {
       type: String,
       required: false,
     },

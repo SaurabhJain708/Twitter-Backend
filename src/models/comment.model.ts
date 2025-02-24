@@ -24,7 +24,7 @@ const commentSchema = new mongoose.Schema(
     },
     likes: {
       type: Number,
-      required: true,
+      required: true, 
       default: 0,
     },
     replies: {

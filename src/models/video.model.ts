@@ -26,7 +26,7 @@ const videoSchema = new mongoose.Schema(
     },
     shares: {
       type: Number,
-      default: 0,
+      default: 0, 
     },
     views: {
       type: Number,

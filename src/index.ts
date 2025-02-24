@@ -2,8 +2,8 @@ import dotenv from "dotenv";
 dotenv.config({
   path:"./.env"
 });
-import app  from "./app";
-import connectdb from "./db";
+import app  from "./app.js";
+import connectdb from "./db/index.js";
 const PORT = process.env.PORT || 3000;
 
 connectdb()
@@ -14,4 +14,4 @@ connectdb()
   })
   .catch((err) => {
     console.log("Mongoose connection failed", err);
-  });
+  }); 

@@ -11,7 +11,7 @@ fullName:string;
 gender:"MALE" | "FEMALE" | "OTHER";
 avatar? :string;
 coverImage? :string;
-videos:mongoose.Schema.Types.ObjectId[];
+videos:mongoose.Types.ObjectId[];
 bio? :string;
 password:string;
 refreshToken:string;
@@ -19,7 +19,7 @@ subscribers:number;
 isPasswordCorrect(password:string) :Promise<boolean>;
 generateAccessToken() :string;
 generateRefreshToken() :string;
-Deactivate?:mongoose.Schema.Types.ObjectId
+Deactivate?:mongoose.Types.ObjectId
 }
 
 const userSchema = new mongoose.Schema<Iuser>(
@@ -84,7 +84,7 @@ const userSchema = new mongoose.Schema<Iuser>(
       default:0
     },
     Deactivate:{
-      type:mongoose.Schema.Types.ObjectId,
+      type:mongoose.Types.ObjectId,
       ref:"DeactivatedAccount",
       required:false
     }

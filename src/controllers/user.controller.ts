@@ -3,6 +3,8 @@ import { ApiError } from "../utils/ApiError";
 import { AsyncHandler } from "../utils/AsyncHandler";
 import { ApiResponse } from "../utils/ApiResponse";
 import { Express, Request, Response } from "express";
+import { DeactivatedAccount } from "../models/deactivate.model";
+import mongoose from "mongoose";
 
 interface AuthRequest extends Request {
   user?: any;
@@ -227,7 +229,19 @@ export const deactivateUserAccount = AsyncHandler(async(req:AuthRequest,res:Resp
   if (!req?.user) {
     throw new ApiError(401, "Invalid credentials");
   }
-  const user = await User.findByIdAndUpdate(req?.user._id,{
-    $set:{Deactivate:true}
-  })
+  const user = await User.findById(req?.user?._id)
+  if(!user){
+    throw new ApiError(404,"User does not exist")
+  }
+  const Deactivatecheck = await DeactivatedAccount.findOne({userId:user._id})
+  if(Deactivatecheck){
+    throw new ApiError(400,"Account already deactivated")
+  }
+  const Deactivate = await DeactivatedAccount.create({userId:user._id})
+  if(!Deactivate){
+    throw new ApiError(500,"Something went wrong while deactivating user")
+  }
+  user.Deactivate = Deactivate._id as mongoose.Types.ObjectId
+  await user.save()
+  return res.status(200).json(new ApiResponse(200,Deactivate,"User deactivated successfully"))
 })

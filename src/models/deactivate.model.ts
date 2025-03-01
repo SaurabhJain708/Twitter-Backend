@@ -1,7 +1,7 @@
 import mongoose, { Document, Model } from "mongoose";
 
-interface Dacc extends Document {
-  userId: mongoose.Schema.Types.ObjectId;
+export interface Dacc extends Document {
+  userId: mongoose.Types.ObjectId;
 }
 
 const DeactivatedAccSchema = new mongoose.Schema<Dacc>(

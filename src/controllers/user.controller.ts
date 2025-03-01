@@ -204,3 +204,22 @@ export const logoutuser = AsyncHandler(
       .json(new ApiResponse(200, user._id, "User logged out successfully"));
   }
 );
+
+// Todo use multer here
+export const changeuserdetails  = AsyncHandler(async(req:AuthRequest,res:Response)=>{
+  const user = req?.user
+  if(!user){
+    throw new ApiError(401, "Invalid credentials");
+  }
+  const {bio,gender,fullName} = req.body
+  const changedUserDetails = await User.findByIdAndUpdate(user._id,{
+    bio,
+    gender,
+    fullName
+  })
+  if(!changedUserDetails){
+    throw new ApiError(500, "Something went wrong while changing user details");
+  }
+  return res.status(200).json(new ApiResponse(200,user,"User details changed successfully"))
+})
+

@@ -259,3 +259,21 @@ export const accountReactivate = AsyncHandler(async(req:AuthRequest,res:Response
   await user.save()
   return res.status(200).json(new ApiResponse(200,deactivatedInstance,"User reactivated successfully"))
 })
+
+export const changePassword = AsyncHandler(async(req:AuthRequest,res:Response)=>{
+  const user = await User.findById(req?.user?._id)
+  if(!user){
+    throw new ApiError(404,"User does not exist")
+  }
+  const {oldpassword,newpassword,confirmnewpassword} = req.body
+  if(!oldpassword || !newpassword || !confirmnewpassword || newpassword!==confirmnewpassword){
+    throw new ApiError(400,"Please fill required fields correctly")
+  }
+  const validateoldPassword = await user.isPasswordCorrect(oldpassword)
+  if(!validateoldPassword){
+    throw new ApiError(400,"Incorrect password")
+  }
+  user.password = newpassword
+  await user.save()
+  return res.status(200).json(new ApiResponse(200,null,"Password updated successfully"))
+})

@@ -245,3 +245,17 @@ export const deactivateUserAccount = AsyncHandler(async(req:AuthRequest,res:Resp
   await user.save()
   return res.status(200).json(new ApiResponse(200,Deactivate,"User deactivated successfully"))
 })
+
+export const accountReactivate = AsyncHandler(async(req:AuthRequest,res:Response)=>{
+  const user = await User.findById(req?.user?._id)
+  if(!user){
+    throw new ApiError(404,"User does not exist")
+  }
+  const deactivatedInstance = await DeactivatedAccount.findOneAndDelete({userId:user._id})
+  if(!deactivatedInstance){
+    throw new ApiError(500,"Something went wrong while reactivating user")
+  }
+  user.Deactivate = undefined
+  await user.save()
+  return res.status(200).json(new ApiResponse(200,deactivatedInstance,"User reactivated successfully"))
+})

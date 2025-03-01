@@ -2,6 +2,8 @@ import mongoose,{Document,Model} from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+
+
 interface Iuser extends Document{
 username:string;
 email:string;
@@ -17,6 +19,7 @@ subscribers:number;
 isPasswordCorrect(password:string) :Promise<boolean>;
 generateAccessToken() :string;
 generateRefreshToken() :string;
+Deactivate?:mongoose.Schema.Types.ObjectId
 }
 
 const userSchema = new mongoose.Schema<Iuser>(
@@ -79,6 +82,11 @@ const userSchema = new mongoose.Schema<Iuser>(
       type:Number,
       required:true,
       default:0
+    },
+    Deactivate:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"DeactivatedAccount",
+      required:false
     }
   },
   { timestamps: true }

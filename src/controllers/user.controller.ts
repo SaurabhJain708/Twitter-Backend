@@ -216,10 +216,18 @@ export const changeuserdetails  = AsyncHandler(async(req:AuthRequest,res:Respons
     bio,
     gender,
     fullName
-  })
+  },{new:true})
   if(!changedUserDetails){
     throw new ApiError(500, "Something went wrong while changing user details");
   }
   return res.status(200).json(new ApiResponse(200,user,"User details changed successfully"))
 })
 
+export const deactivateUserAccount = AsyncHandler(async(req:AuthRequest,res:Response)=>{
+  if (!req?.user) {
+    throw new ApiError(401, "Invalid credentials");
+  }
+  const user = await User.findByIdAndUpdate(req?.user._id,{
+    $set:{Deactivate:true}
+  })
+})

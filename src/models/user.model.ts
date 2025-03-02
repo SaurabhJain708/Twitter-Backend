@@ -1,25 +1,25 @@
-import mongoose,{Document,Model} from "mongoose";
+import mongoose, { Document, Model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-
-
-interface Iuser extends Document{
-username:string;
-email:string;
-fullName:string;
-gender:"MALE" | "FEMALE" | "OTHER";
-avatar? :string;
-coverImage? :string;
-videos:mongoose.Types.ObjectId[];
-bio? :string;
-password:string;
-refreshToken:string;
-subscribers:number;
-isPasswordCorrect(password:string) :Promise<boolean>;
-generateAccessToken() :string;
-generateRefreshToken() :string;
-Deactivate?:mongoose.Types.ObjectId
+interface Iuser extends Document {
+  username: string;
+  email: string;
+  fullName: string;
+  gender: "MALE" | "FEMALE" | "OTHER";
+  avatar?: string;
+  coverImage?: string;
+  videos?: mongoose.Types.ObjectId[];
+  bio?: string;
+  password: string;
+  refreshToken: string;
+  subscribers: number;
+  isPasswordCorrect(password: string): Promise<boolean>;
+  generateAccessToken(): string;
+  generateRefreshToken(): string;
+  Deactivate?: mongoose.Types.ObjectId;
+  blocked?:mongoose.Types.ObjectId[];
+  blockedBy?:mongoose.Types.ObjectId[];
 }
 
 const userSchema = new mongoose.Schema<Iuser>(
@@ -62,32 +62,47 @@ const userSchema = new mongoose.Schema<Iuser>(
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Video",
+        index:true
       },
     ],
     bio: {
       type: String,
-      required: false, 
+      required: false,
       trim: true,
     },
     password: {
       type: String,
       required: true,
-      select: false
+      select: false,
     },
     refreshToken: {
       type: String,
       required: false,
     },
-    subscribers:{
-      type:Number,
-      required:true,
-      default:0
+    subscribers: {
+      type: Number,
+      required: true,
+      default: 0,
     },
-    Deactivate:{
-      type:mongoose.Types.ObjectId,
-      ref:"DeactivatedAccount",
-      required:false
-    }
+    Deactivate: {
+      type: mongoose.Types.ObjectId,
+      ref: "DeactivatedAccount",
+      required: false,
+    },
+    blocked: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BlockedUser",
+        index:true
+      },
+    ],
+    blockedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "BlockedUser",
+        index:true
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -99,11 +114,13 @@ userSchema.pre<Iuser>("save", async function (next) {
   next();
 });
 
-userSchema.methods.isPasswordCorrect = async function (password: string):Promise<boolean>{
-  return await bcrypt.compare(password, this.password);
+userSchema.methods.isPasswordCorrect = async function (password: string): Promise<boolean> {
+  const user = await User.findById(this._id).select("+password");
+  return user ? bcrypt.compare(password, user.password) : false;
 };
 
-userSchema.methods.generateAccessToken = function ():string {
+
+userSchema.methods.generateAccessToken = function (): string {
   const secretKey: string = process.env.ACCESS_TOKEN_SECRET!;
   return jwt.sign(
     {
@@ -116,7 +133,7 @@ userSchema.methods.generateAccessToken = function ():string {
   );
 };
 
-userSchema.methods.generateRefreshToken = function ():string {
+userSchema.methods.generateRefreshToken = function (): string {
   const secretKey: string = process.env.REFRESH_TOKEN_SECRET!;
   return jwt.sign(
     {
@@ -129,6 +146,6 @@ userSchema.methods.generateRefreshToken = function ():string {
   );
 };
 
-const User:Model<Iuser> = mongoose.model<Iuser>("User", userSchema);
+const User: Model<Iuser> = mongoose.model<Iuser>("User", userSchema);
 
 export default User;

@@ -390,3 +390,55 @@ export const blockUser = AsyncHandler(
     }
   }
 );
+
+export const unblock = AsyncHandler(async (req: AuthRequest, res: Response) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const user = req?.user;
+    if (!user) {
+      throw new ApiError(401, "Invalid credentials");
+    }
+    const { blockedId } = req?.body;
+    if (!blockedId) {
+      throw new ApiError(400, "Please give the id of user to be blocked");
+    }
+    const deleteBlocking = await BlockedUser.findOneAndDelete({
+      blocked: blockedId,
+      blockedBy: user._id,
+    })
+      .session(session)
+      .exec();
+    if (!deleteBlocking) {
+      throw new ApiError(500, "Something went wrong while unblocking user");
+    }
+
+    const updateBlockeduser = await User.findByIdAndUpdate(
+      blockedId,
+      { $pull: { blockedBy: user._id } },
+      { new: true, session }
+    ).exec();
+    const updateuser = await User.findByIdAndUpdate(
+      user._id,
+      { $pull: { blocked: blockedId } },
+      { new: true, session }
+    ).exec();
+
+    if (!updateBlockeduser || !updateuser) {
+      throw new ApiError(
+        500,
+        "Something went wrong while updating user block list"
+      );
+    }
+
+    await session.commitTransaction();
+    res
+      .status(200)
+      .json(new ApiResponse(200, null, "User unblocked successfully"));
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
+  }
+});

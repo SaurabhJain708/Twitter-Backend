@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { Request, Response } from "express";
 import { DeactivatedAccount } from "../models/deactivate.model";
 import mongoose from "mongoose";
+import { BlockedUser } from "../models/blockuser.model";
 
 interface AuthRequest extends Request {
   user?: any;
@@ -316,10 +317,76 @@ export const changePassword = AsyncHandler(
   }
 );
 
-export const blockUser = AsyncHandler(async(req:AuthRequest,res:Response)=>{
-  const user = req?.user
-  if (!user) {
-    throw new ApiError(401, "Invalid credentials");
+export const blockUser = AsyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    try {
+      const user = req?.user;
+      if (!user) {
+        throw new ApiError(401, "Invalid credentials");
+      }
+      const { blockUser } = req?.body;
+
+      if (!blockUser) {
+        throw new ApiError(400, "Please give the id of user to be blocked");
+      }
+
+      const checkifAlreadyBlocked = await BlockedUser.findOne({
+        blockedBy: user._id,
+        blocked: blockUser,
+      })
+        .session(session)
+        .exec();
+
+      if (checkifAlreadyBlocked) {
+        throw new ApiError(400, "User is already blocked");
+      }
+      const checkifToBeBlockedUserExists = await User.findById(blockUser)
+        .session(session)
+        .exec();
+
+      if (!checkifToBeBlockedUserExists) {
+        throw new ApiError(404, "User doesnt exist");
+      }
+
+      const blockinguser = await BlockedUser.insertMany(
+        [
+          {
+            blockedBy: user._id,
+            blocked: checkifToBeBlockedUserExists._id,
+          },
+        ],
+        { session }
+      );
+
+      if (!blockinguser) {
+        throw new ApiError(500, "Blocking failed");
+      }
+
+      const updateBlockedUser = await User.findByIdAndUpdate(
+        checkifToBeBlockedUserExists._id,
+        { $push: { blockedBy: user._id } },
+        { new: true, session }
+      ).exec();
+      const updateUser = await User.findByIdAndUpdate(
+        user._id,
+        { $push: { blocked: checkifToBeBlockedUserExists._id } },
+        { new: true, session }
+      ).exec();
+
+      if (!updateBlockedUser || !updateUser) {
+        throw new ApiError(500, "Something went wrong while updating users");
+      }
+      await session.commitTransaction();
+      return res
+        .status(200)
+        .json(new ApiResponse(200, null, "User blocked successfully"));
+    } catch (error) {
+      await session.abortTransaction();
+      throw error;
+    } finally {
+      await session.endSession();
+    }
   }
-  
-})
+);

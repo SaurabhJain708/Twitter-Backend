@@ -73,3 +73,61 @@ export const addLike = AsyncHandler(async (req: AuthRequest, res: Response) => {
     await session.endSession();
   }
 });
+
+export const unLike = AsyncHandler(async (req: AuthRequest, res: Response) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  try {
+    const user = req?.user;
+    if (!user) {
+      throw new ApiError(401, "Invalid credentials");
+    }
+    const { category, id } = req?.body;
+    if (!["Video", "Post", "Comment"].includes(category) || !id) {
+      throw new ApiError(400, "Please give the id and type of post");
+    }
+
+    let Model: Model<any> = Post;
+    if (category == "Post") {
+      Model = Post;
+    } else if (category == "Video") {
+      Model = Video;
+    } else if (category == "Comment") {
+      Model = Comment;
+    }
+
+    const unlikecontent = await Liked.findOneAndDelete({
+      category,
+      likedBy: user._id,
+      file_id: id,
+    })
+      .session(session)
+      .exec();
+    if (!unlikecontent) {
+      throw new ApiError(404, "User never liked this content");
+    }
+
+    const updateContent = await Model.findByIdAndUpdate(
+      id,
+      { $inc: { likes: -1 } },
+      { new: true, session }
+    ).exec();
+
+    if (!updateContent) {
+      throw new ApiError(
+        500,
+        "Something went wrong while updating unliked content"
+      );
+    }
+
+    await session.commitTransaction();
+    return res
+      .status(200)
+      .json(new ApiResponse(200, null, "Content unliked successfully"));
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    await session.endSession();
+  }
+});

@@ -12,7 +12,7 @@ export const addLike = AsyncHandler(async(req:AuthRequest,res:Response)=>{
         throw new ApiError(401, "Invalid credentials");
     }
     const {category,id} = req?.body
-    if(category!="VIDEO"||"POST" || !id){
+    if(category!="Video"||"Post" || !id){
         throw new ApiError(400, "Please give the id and type of post");
     }
     

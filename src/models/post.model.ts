@@ -44,8 +44,15 @@ const postSchema = new mongoose.Schema<Pmdl>(
       required: true,
     },
     tags: [{ type: String }],
+    shares: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
   },
   { timestamps: true }
 );
+
+postSchema.index({ title: "text", content: "text", tags: 1 });
 
 export const Post: Model<Pmdl> = mongoose.model<Pmdl>("Post", postSchema);

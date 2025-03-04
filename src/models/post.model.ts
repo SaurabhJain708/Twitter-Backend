@@ -7,7 +7,7 @@ interface Pmdl extends Document {
   files?: string;
   likes: number;
   shares: number;
-  impressions: number;
+  views: number;
   tags: string[];
 }
 
@@ -38,7 +38,7 @@ const postSchema = new mongoose.Schema<Pmdl>(
       default: 0,
       required: true,
     },
-    impressions: {
+    views: {
       type: Number,
       default: 0,
       required: true,

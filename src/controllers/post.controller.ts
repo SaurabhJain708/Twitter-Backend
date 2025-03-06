@@ -132,21 +132,27 @@ export const unLike = AsyncHandler(async (req: AuthRequest, res: Response) => {
   }
 });
 
-export const updateViews = AsyncHandler(async(req:Request,res:Response)=>{
-    const { category, id } = req?.body;
-    if (!["Video", "Post"].includes(category) || !id) {
-      throw new ApiError(400, "Please give the id and type of post");
-    }
+export const updateViews = AsyncHandler(async (req: Request, res: Response) => {
+  const { category, id } = req?.body;
+  if (!["Video", "Post"].includes(category) || !id) {
+    throw new ApiError(400, "Please give the id and type of post");
+  }
 
-    let Model: Model<any> = Post;
-    if (category == "Post") {
-      Model = Post;
-    } else if (category == "Video") {
-      Model = Video;
-    }
-    const updateView = await Model.findByIdAndUpdate(id,{$inc:{views:1}},{new:true}).exec()
-    if(!updateView){
-        throw new ApiError(404,"Content not found")
-    }
-    return res.status(200).json(new ApiResponse(200,null,"View added successfully"))
-})
+  let Model: Model<any> = Post;
+  if (category == "Post") {
+    Model = Post;
+  } else if (category == "Video") {
+    Model = Video;
+  }
+  const updateView = await Model.findByIdAndUpdate(
+    id,
+    { $inc: { views: 1 } },
+    { new: true }
+  ).exec();
+  if (!updateView) {
+    throw new ApiError(404, "Content not found");
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "View added successfully"));
+});

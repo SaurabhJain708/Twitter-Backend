@@ -6,6 +6,7 @@ import { Request, Response } from "express";
 import { DeactivatedAccount } from "../models/deactivate.model";
 import mongoose from "mongoose";
 import { BlockedUser } from "../models/blockuser.model";
+import jwt from "jsonwebtoken";
 
 interface AuthRequest extends Request {
   user?: any;
@@ -442,3 +443,59 @@ export const unblock = AsyncHandler(async (req: AuthRequest, res: Response) => {
     await session.endSession();
   }
 });
+
+export const refreshToken = AsyncHandler(
+  async (req: AuthRequest, res: Response) => {
+    const { id } = req.body;
+
+    if (!id) {
+      throw new ApiError(400, "Please provide a valid user ID");
+    }
+
+    const user = await User.findById(id).select("+refreshToken");
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+
+    const givenToken = req.cookies?.refreshToken;
+    if (!givenToken) {
+      throw new ApiError(401, "Refresh token is missing");
+    }
+
+    try {
+      const decodedGivenToken = jwt.verify(
+        givenToken,
+        process.env.REFRESH_TOKEN_SECRET!
+      ) as jwt.JwtPayload;
+      const decodedUserToken = jwt.verify(
+        user.refreshToken,
+        process.env.REFRESH_TOKEN_SECRET!
+      ) as jwt.JwtPayload;
+      if (decodedGivenToken.id !== decodedUserToken.id) {
+        throw new ApiError(403, "Refresh token does not match");
+      }
+      const { accesstoken, refreshtoken } = await generateRefreshToken(
+        user._id
+      );
+      if (!accesstoken || !refreshtoken) {
+        throw new ApiError(500, "Internal server error");
+      }
+      user.refreshToken = refreshtoken;
+      await user.save();
+      res.cookie("accessToken", accesstoken, {
+        httpOnly: true,
+        secure: true,
+      });
+      res.cookie("refreshToken", refreshtoken, {
+        httpOnly: true,
+        secure: true,
+      });
+
+      return res
+        .status(200)
+        .json(new ApiResponse(200, null, "New AccessToken generated"));
+    } catch (error) {
+      throw new ApiError(403, "Invalid or expired refresh token");
+    }
+  }
+);

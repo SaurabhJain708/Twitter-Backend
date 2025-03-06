@@ -1,6 +1,7 @@
 import mongoose, { Document, Model } from "mongoose";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { nanoid } from "nanoid";
 
 interface Iuser extends Document {
   username: string;
@@ -135,9 +136,10 @@ userSchema.methods.generateAccessToken = function (): string {
 
 userSchema.methods.generateRefreshToken = function (): string {
   const secretKey: string = process.env.REFRESH_TOKEN_SECRET!;
+  const uniqueId= nanoid(16)
   return jwt.sign(
     {
-      id: this._id,
+      id: uniqueId,
     },
     secretKey,
     {

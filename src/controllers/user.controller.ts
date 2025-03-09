@@ -1,11 +1,11 @@
-import User from "../models/user.model";
-import { ApiError } from "../utils/ApiError";
-import { AsyncHandler } from "../utils/AsyncHandler";
-import { ApiResponse } from "../utils/ApiResponse";
+import User from "../models/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { AsyncHandler } from "../utils/AsyncHandler.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { Request, Response } from "express";
-import { DeactivatedAccount } from "../models/deactivate.model";
+import { DeactivatedAccount } from "../models/deactivate.model.js";
 import mongoose from "mongoose";
-import { BlockedUser } from "../models/blockuser.model";
+import { BlockedUser } from "../models/blockuser.model.js";
 import jwt from "jsonwebtoken";
 
 interface AuthRequest extends Request {

@@ -12,8 +12,8 @@ import {
   logoutuser,
   refreshToken,
   unblock,
-} from "../controllers/user.controller";
-import { auth } from "../middlewares/auth.middleware";
+} from "../controllers/user.controller.js";
+import { auth } from "../middlewares/auth.middleware.js";
 
 const userRouter = Router();
 
@@ -29,3 +29,5 @@ userRouter.route("/change-password").post(auth, changePassword);
 userRouter.route("/block").post(auth, blockUser);
 userRouter.route("/unblock").post(auth, unblock);
 userRouter.route("/refreshtoken").post(refreshToken);
+
+export default userRouter

@@ -1,8 +1,8 @@
-import { Subscriber } from "../models/subscriber.model";
-import User from "../models/user.model";
-import { ApiError } from "../utils/ApiError";
-import { ApiResponse } from "../utils/ApiResponse";
-import { AsyncHandler } from "../utils/AsyncHandler";
+import { Subscriber } from "../models/subscriber.model.js";
+import User from "../models/user.model.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { Request, Response } from "express";
 
 interface AuthRequest extends Request {

@@ -1,12 +1,12 @@
 import mongoose, { Model } from "mongoose";
-import { ApiError } from "../utils/ApiError";
-import { AsyncHandler } from "../utils/AsyncHandler";
+import { ApiError } from "../utils/ApiError.js";
+import { AsyncHandler } from "../utils/AsyncHandler.js";
 import { Request, Response } from "express";
-import { Post } from "../models/post.model";
-import { Liked } from "../models/likes.model";
-import { ApiResponse } from "../utils/ApiResponse";
-import Video from "../models/video.model";
-import { Comment } from "../models/comment.model";
+import { Post } from "../models/post.model.js";
+import { Liked } from "../models/likes.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import Video from "../models/video.model.js";
+import { Comment } from "../models/comment.model.js";
 
 interface AuthRequest extends Request {
   user?: any;
